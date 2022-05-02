@@ -1,0 +1,42 @@
+{
+  "name": "carnonical",
+  "version": "0.0.0",
+  "description": "Canonical CAR block ordering.",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "mocha test/*.spec.js"
+  },
+  "author": "Alan Shaw",
+  "license": "Apache-2.0 OR MIT",
+  "dependencies": {
+    "@ipld/car": "^4.1.2",
+    "@ipld/dag-pb": "^2.1.16",
+    "multiformats": "^9.6.4"
+  },
+  "devDependencies": {
+    "assert": "^2.0.0",
+    "ipfs-unixfs": "^6.0.7",
+    "mocha": "^10.0.0"
+  },
+  "eslintConfig": {
+    "extends": [
+      "../../node_modules/hd-scripts/eslint/index.js"
+    ],
+    "ignorePatterns": [
+      "pw-test.config.cjs"
+    ],
+    "parserOptions": {
+      "project": "./tsconfig.json"
+    },
+    "env": {
+      "mocha": true
+    }
+  },
+  "eslintIgnore": [
+    "node_modules",
+    "coverage",
+    "dist",
+    "docs"
+  ]
+}
