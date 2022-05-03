@@ -36,7 +36,8 @@ export async function readData(reader) {
   const { value, done } = await reader.next(len)
   if (done || !value) throw new Error('missing data')
   readData.bytes = readLength.bytes + value.length
-  return [...value]
+  // eslint-disable-next-line unicorn/prefer-spread
+  return value.slice()
 }
 readData.bytes = 0
 
@@ -50,7 +51,8 @@ export async function readLength(reader) {
   for (let i = 0; i < 8; i++) {
     const { value, done } = await reader.next(1)
     if (done || !value) throw new Error('missing length')
-    buffer.set([...value], i)
+    // eslint-disable-next-line unicorn/prefer-spread
+    buffer.set(value.slice(), i)
     try {
       const num = varint.decode(buffer)
       readLength.bytes = varint.decode.bytes
