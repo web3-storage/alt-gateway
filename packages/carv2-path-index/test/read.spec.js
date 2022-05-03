@@ -1,7 +1,7 @@
 /* eslint-env mocha */
 
 describe('path index read', () => {
-  it('should read an index', async () => {
+  it('should read an index', () => {
     // const indexData = [
     //   ['/images/1.png', ]
     // ]
