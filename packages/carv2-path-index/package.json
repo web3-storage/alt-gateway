@@ -1,18 +1,31 @@
 {
-  "name": "carv2-path-index",
-  "version": "0.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "api",
+  "version": "0.0.1",
+  "description": "Auth API",
+  "private": true,
+  "type": "module",
+  "main": "src/index.js",
   "scripts": {
-    "test": "mocha test/*.spec.js"
+    "lint": "tsc && eslint '**/*.{js,ts}' && prettier --check '**/*.{js,ts,md,yml,json}' --ignore-path ../../.gitignore",
+    "test": "tsc && ava"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Hugo Dias <hugomrdias@gmail.com> (hugodias.me)",
+  "license": "(Apache-2.0 OR MIT)",
   "dependencies": {
-    "it-reader": "^5.0.1",
+    "@ipld/car": "^4.1.2",
+    "@ipld/unixfs": "^1.0.3-dev",
+    "blockstore-core": "^1.0.5",
+    "ipfs-unixfs-importer": "^9.0.7",
+    "it-last": "^1.0.6",
+    "merge-options": "^3.0.4",
     "multiformats": "^9.6.4",
     "uint8arrays": "^3.0.0",
-    "varint": "^6.0.0"
+    "varint": "^6.0.0",
+    "it-reader": "^5.0.1"
+  },
+  "devDependencies": {
+    "@types/varint": "^6.0.0",
+    "ava": "^4.2.0"
   },
   "eslintConfig": {
     "extends": [
@@ -34,9 +47,9 @@
     "dist",
     "docs"
   ],
-  "devDependencies": {
-    "@types/varint": "^6.0.0",
-    "assert": "^2.0.0",
-    "mocha": "^10.0.0"
+  "ava": {
+    "ignoredByWatcher": [
+      "./dist/*"
+    ]
   }
 }

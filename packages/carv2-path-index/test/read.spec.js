@@ -1,37 +1,34 @@
-/* eslint-env mocha */
-import assert from 'assert'
 import * as raw from 'multiformats/codecs/raw'
 import { CID } from 'multiformats/cid'
 import { sha256 } from 'multiformats/hashes/sha2'
 import varint from 'varint'
 import { fromString, concat } from 'uint8arrays'
-import { read } from '../src/read.js'
+import test from 'ava'
+import { read } from '../../carv2-path-index/src/read.js'
 
-describe('path index read', () => {
-  it('should read an index', async () => {
-    const indexData = [
-      ['/images/1.png', await randomCid(), 0, 100],
-      ['/images/2.png', await randomCid(), 100, 200],
-      ['/images/3.png', await randomCid(), 300, 400],
-    ]
+test('should read an index', async (t) => {
+  const indexData = [
+    ['/images/1.png', await randomCid(), 0, 100],
+    ['/images/2.png', await randomCid(), 100, 200],
+    ['/images/3.png', await randomCid(), 300, 400],
+  ]
 
-    const indexEntries = indexData.map(([path, cid, offset, length]) => {
-      return indexEntry(path, cid, offset, length)
-    })
-
-    const index = async function* () {
-      yield concat(indexEntries)
-    }
-
-    let i = 0
-    for await (const entry of read(index)) {
-      assert.equal(entry.path, indexData[i][0])
-      assert.equal(entry.cid.equals(indexData[i][1]), true)
-      assert.equal(entry.offset, indexData[i][2])
-      assert.equal(entry.length, indexData[i][3])
-      i++
-    }
+  const indexEntries = indexData.map(([path, cid, offset, length]) => {
+    return indexEntry(path, cid, offset, length)
   })
+
+  const index = async function* () {
+    yield concat(indexEntries)
+  }
+
+  let i = 0
+  for await (const entry of read(index)) {
+    t.is(entry.path, indexData[i][0])
+    t.is(entry.cid.equals(indexData[i][1]), true)
+    t.is(entry.offset, indexData[i][2])
+    t.is(entry.length, indexData[i][3])
+    i++
+  }
 })
 
 /**
