@@ -33,5 +33,8 @@
     "coverage",
     "dist",
     "docs"
-  ]
+  ],
+  "devDependencies": {
+    "@types/varint": "^6.0.0"
+  }
 }

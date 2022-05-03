@@ -54,6 +54,7 @@ importers:
 
   packages/carv2-path-index:
     specifiers:
+      '@types/varint': ^6.0.0
       it-reader: ^5.0.1
       multiformats: ^9.6.4
       uint8arrays: ^3.0.0
@@ -63,6 +64,8 @@ importers:
       multiformats: 9.6.4
       uint8arrays: 3.0.0
       varint: 6.0.0
+    devDependencies:
+      '@types/varint': 6.0.0
 
 packages:
 
@@ -241,6 +244,12 @@ packages:
 
   /@types/normalize-package-data/2.4.1:
     resolution: {integrity: sha512-Gj7cI7z+98M282Tqmp2K5EIsoouUEzbBJhQQzDE3jSIRk6r9gsz0oUokqIUR4u1R3dMHo0pDHM7sNOHyhulypw==}
+    dev: true
+
+  /@types/varint/6.0.0:
+    resolution: {integrity: sha512-2jBazyxGl4644tvu3VAez8UA/AtrcEetT9HOeAbqZ/vAcRVL/ZDFQjSS7rkWusU5cyONQVUz+nwwrNZdMva4ow==}
+    dependencies:
+      '@types/node': 17.0.31
     dev: true
 
   /@types/yargs-parser/21.0.0:

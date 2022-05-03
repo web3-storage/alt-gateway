@@ -11,7 +11,7 @@ export async function* read(index) {
     let path
     try {
       path = await readString(reader)
-    } catch (error) {
+    } catch (/** @type {any} */ error) {
       if (error.code === 'ERR_UNDER_READ') {
         return // finished!
       }

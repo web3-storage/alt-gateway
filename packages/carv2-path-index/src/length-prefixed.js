@@ -9,8 +9,10 @@ import { CID } from 'multiformats/cid'
  */
 export async function readString(reader) {
   const value = await readData(reader)
+  readString.bytes = readData.bytes
   return toString(value)
 }
+readString.bytes = 0
 
 /**
  * Read length prefixed CID data.
@@ -19,8 +21,10 @@ export async function readString(reader) {
  */
 export async function readCID(reader) {
   const value = await readData(reader)
+  readCID.bytes = readData.bytes
   return CID.decode(value)
 }
+readCID.bytes = 0
 
 /**
  * Read some length prefixed data.
@@ -31,8 +35,10 @@ export async function readData(reader) {
   const len = await readLength(reader)
   const { value, done } = await reader.next(len)
   if (done || !value) throw new Error('missing data')
-  return value
+  readData.bytes = readLength.bytes + value.length
+  return [...value]
 }
+readData.bytes = 0
 
 /**
  * Read a length (a varint).
@@ -42,8 +48,9 @@ export async function readData(reader) {
 export async function readLength(reader) {
   const buffer = new Uint8Array(8)
   for (let i = 0; i < 8; i++) {
-    const { value } = await reader.next(1)
-    buffer.set(value, i)
+    const { value, done } = await reader.next(1)
+    if (done || !value) throw new Error('missing length')
+    buffer.set([...value], i)
     try {
       const num = varint.decode(buffer)
       readLength.bytes = varint.decode.bytes
@@ -55,3 +62,4 @@ export async function readLength(reader) {
     }
   }
 }
+readLength.bytes = 0
