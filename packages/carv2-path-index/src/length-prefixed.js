@@ -47,12 +47,15 @@ readData.bytes = 0
  * @param {import('it-reader').Reader} reader
  */
 export async function readLength(reader) {
-  const buffer = new Uint8Array(8)
+  let buffer = new Uint8Array()
   for (let i = 0; i < 8; i++) {
     const { value, done } = await reader.next(1)
     if (done || !value) throw new Error('missing length')
+    const tmp = new Uint8Array(i + 1)
+    tmp.set(buffer)
     // eslint-disable-next-line unicorn/prefer-spread
-    buffer.set(value.slice(), i)
+    tmp.set(value.slice(), i)
+    buffer = tmp
     try {
       const num = varint.decode(buffer)
       readLength.bytes = varint.decode.bytes
@@ -63,5 +66,6 @@ export async function readLength(reader) {
       }
     }
   }
+  throw new Error('failed to read length')
 }
 readLength.bytes = 0

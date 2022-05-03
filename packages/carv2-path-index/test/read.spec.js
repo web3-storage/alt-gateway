@@ -2,7 +2,7 @@ import * as raw from 'multiformats/codecs/raw'
 import { CID } from 'multiformats/cid'
 import { sha256 } from 'multiformats/hashes/sha2'
 import varint from 'varint'
-import { fromString, concat } from 'uint8arrays'
+import { concat } from 'uint8arrays'
 import test from 'ava'
 import { read } from '../../carv2-path-index/src/read.js'
 
@@ -17,9 +17,9 @@ test('should read an index', async (t) => {
     return indexEntry(path, cid, offset, length)
   })
 
-  const index = async function* () {
+  const index = (async function* () {
     yield concat(indexEntries)
-  }
+  })()
 
   let i = 0
   for await (const entry of read(index)) {
@@ -38,21 +38,19 @@ test('should read an index', async (t) => {
  * @param {number} length
  */
 function indexEntry(path, cid, offset, length) {
-  const pathBuf = fromString(path)
-  const cidBuf = CID.encode(cid.toString())
-  return concat(
+  const pathBuf = new TextEncoder().encode(path)
+  return concat([
     varint.encode(pathBuf.length),
     pathBuf,
-    varint.encode(cidBuf.length),
-    cidBuf,
+    varint.encode(cid.bytes.length),
+    cid.bytes,
     varint.encode(offset),
-    varint.encode(length)
-  )
+    varint.encode(length),
+  ])
 }
 
 async function randomCid() {
   const bytes = new TextEncoder().encode(Date.now().toString() + Math.random())
   const hash = await sha256.digest(raw.encode(bytes))
-  const cid = CID.create(1, raw.code, hash)
-  return { cid, bytes }
+  return CID.create(1, raw.code, hash)
 }
