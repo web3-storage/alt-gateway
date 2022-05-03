@@ -4,7 +4,7 @@ import { sha256 } from 'multiformats/hashes/sha2'
 import varint from 'varint'
 import { concat } from 'uint8arrays'
 import test from 'ava'
-import { read } from '../../carv2-path-index/src/read.js'
+import { read, PATH_INDEX_CODEC } from '../../carv2-path-index/src/read.js'
 
 test('should read an index', async (t) => {
   const indexData = [
@@ -18,6 +18,7 @@ test('should read an index', async (t) => {
   })
 
   const index = (async function* () {
+    yield new Uint8Array(varint.encode(PATH_INDEX_CODEC))
     yield concat(indexEntries)
   })()
 
