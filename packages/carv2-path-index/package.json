@@ -1,0 +1,37 @@
+{
+  "name": "carv2-path-index",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "it-reader": "^5.0.1",
+    "multiformats": "^9.6.4",
+    "uint8arrays": "^3.0.0",
+    "varint": "^6.0.0"
+  },
+  "eslintConfig": {
+    "extends": [
+      "../../node_modules/hd-scripts/eslint/index.js"
+    ],
+    "ignorePatterns": [
+      "pw-test.config.cjs"
+    ],
+    "parserOptions": {
+      "project": "./tsconfig.json"
+    },
+    "env": {
+      "mocha": true
+    }
+  },
+  "eslintIgnore": [
+    "node_modules",
+    "coverage",
+    "dist",
+    "docs"
+  ]
+}

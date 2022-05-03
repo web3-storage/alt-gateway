@@ -52,6 +52,18 @@ importers:
       ipfs-unixfs: 6.0.7
       mocha: 10.0.0
 
+  packages/carv2-path-index:
+    specifiers:
+      it-reader: ^5.0.1
+      multiformats: ^9.6.4
+      uint8arrays: ^3.0.0
+      varint: ^6.0.0
+    dependencies:
+      it-reader: 5.0.1
+      multiformats: 9.6.4
+      uint8arrays: 3.0.0
+      varint: 6.0.0
+
 packages:
 
   /@babel/code-frame/7.16.7:
@@ -2062,6 +2074,17 @@ packages:
     resolution: {integrity: sha1-6PvzdNxVb/iUehDcsFctYz8s+hA=}
     dev: true
 
+  /it-reader/5.0.1:
+    resolution: {integrity: sha512-Vj9TliHgCsIE21oqWDhrE1E5QALZw1n9QiaZg2EiWPFKSvCSm7lGDycy1OYs3LYhgvmTQDKJestlzVSHJ/YsJw==}
+    dependencies:
+      it-stream-types: 1.0.4
+      uint8arraylist: 1.5.1
+    dev: false
+
+  /it-stream-types/1.0.4:
+    resolution: {integrity: sha512-0F3CqTIcIHwtnmIgqd03a7sw8BegAmE32N2w7anIGdALea4oAN4ltqPgDMZ7zn4XPLZifXEZlBXSzgg64L1Ebw==}
+    dev: false
+
   /js-string-escape/1.0.1:
     resolution: {integrity: sha1-4mJbrbwNZ8dTPp7cEGjFh65BN+8=}
     engines: {node: '>= 0.8'}
@@ -3218,6 +3241,19 @@ packages:
     engines: {node: '>=4.2.0'}
     hasBin: true
     dev: true
+
+  /uint8arraylist/1.5.1:
+    resolution: {integrity: sha512-UpPGcVlTVc7Brtwt4W2MfTqvJQsr8owHMKBnICsueSImiarVAHf8NGMjhMklFtgbCZN1/9S9oW5k1JwlalGHoA==}
+    engines: {node: '>=16.0.0', npm: '>=7.0.0'}
+    dependencies:
+      uint8arrays: 3.0.0
+    dev: false
+
+  /uint8arrays/3.0.0:
+    resolution: {integrity: sha512-HRCx0q6O9Bfbp+HHSfQQKD7wU70+lydKVt4EghkdOvlK/NlrF90z+eXV34mUd48rNvVJXwkrMSPpCATkct8fJA==}
+    dependencies:
+      multiformats: 9.6.4
+    dev: false
 
   /unbox-primitive/1.0.2:
     resolution: {integrity: sha512-61pPlCD9h51VoreyJ0BReideM3MDKMKnh6+V9L08331ipq6Q8OFXZYiqP6n/tbHx4s5I9uRhcye6BrbkizkBDw==}
