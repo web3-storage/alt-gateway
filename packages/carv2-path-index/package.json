@@ -4,6 +4,12 @@
   "description": "A DAG path index for CARv2",
   "type": "module",
   "main": "src/index.js",
+  "module": "src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./inspect": "./src/inspect.js",
+    "./export": "./src/export.js"
+  },
   "scripts": {
     "lint": "tsc && eslint '**/*.{js,ts}' && prettier --check '**/*.{js,ts,md,yml,json}' --ignore-path ../../.gitignore",
     "test": "tsc && ava"

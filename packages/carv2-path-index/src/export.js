@@ -22,16 +22,17 @@ function createCarHeader(roots) {
  * @param {import('fs').promises.FileHandle} file
  * @param {string} path
  */
-export async function* exportCar(file, path = '/') {
+export async function* exportCar(file, path = '') {
   // read header
-  const headerRes = await file.read({ offset: 0, position: 11, length: 40 })
+  const headerData = new Uint8Array(51)
+  await file.read(headerData, 0, 51, 0)
 
-  const header = await readHeader(bytesReader(headerRes.buffer))
+  const header = await readHeader(bytesReader(headerData))
   if (header.version !== 2) {
     throw new Error('unexpected CAR version')
   }
 
-  if (path === '/') {
+  if (path === '') {
     yield* file.createReadStream({
       start: header.dataOffset,
       end: header.dataOffset + header.dataSize,

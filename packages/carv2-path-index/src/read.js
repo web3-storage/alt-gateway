@@ -9,7 +9,7 @@ export async function* read(index) {
   const reader = bytesReader(index)
   const formatCodec = await readLength(reader)
   if (formatCodec !== PATH_INDEX_CODEC) {
-    throw new Error('unexpected index codec')
+    throw new Error(`unexpected index codec: ${formatCodec}`)
   }
 
   while (true) {

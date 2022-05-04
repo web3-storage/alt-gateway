@@ -2,7 +2,7 @@
   "name": "carnonical",
   "version": "0.0.0",
   "description": "Canonical CAR block ordering.",
-  "main": "index.js",
+  "main": "src/index.js",
   "type": "module",
   "scripts": {
     "test": "mocha test/*.spec.js"

@@ -7,6 +7,7 @@ import { bytesReader } from '@ipld/car/decoder'
 import * as raw from 'multiformats/codecs/raw'
 import * as dagPB from '@ipld/dag-pb'
 import { UnixFS } from 'ipfs-unixfs'
+import { PATH_INDEX_CODEC } from './constants.js'
 
 /**
  * @typedef {import('@ipld/car/lib/coding').BytesReader} BytesReader
@@ -20,16 +21,23 @@ const CIDV0_BYTES = {
 }
 
 /**
- *
- * @param {Uint8Array} bytes
- * @returns
+ * @param {AsyncIterable<Uint8Array>} car
  */
-export async function* process(bytes) {
+export async function* process(car) {
+  // TODO: streaming
+  const chunks = []
+  for await (const chunk of car) {
+    chunks.push(chunk)
+  }
+  const bytes = concat(chunks)
   const reader = bytesReader(bytes)
 
   yield carV2Header(bytes.length)
   // return full car v1
   yield bytes
+  // write codec for the index
+  yield new Uint8Array(varint.encode(PATH_INDEX_CODEC))
+
   await readHeader(reader)
 
   const { block, start, end } = await readBlock(reader)
@@ -46,9 +54,9 @@ export async function* process(bytes) {
         throw new Error('missing Data in dag-pb node')
       }
 
-      if (data.type === 'File') {
+      if (data.type === 'file') {
         yield* indexUnixFsFile(reader, '', block.cid, start, node)
-      } else if (data.type === 'Directory') {
+      } else if (data.type === 'directory') {
         yield* indexUnixFsDir(reader, '', block.cid, start, node)
       } else {
         throw new Error(`unsupported UnixFS type: ${data.type}`)
@@ -140,9 +148,9 @@ async function* indexUnixFsDir(reader, path, cid, start, rootNode) {
           throw new Error('missing Data in dag-pb node')
         }
 
-        if (data.type === 'File') {
+        if (data.type === 'file') {
           yield* indexUnixFsFile(reader, linkPath, block.cid, start, node)
-        } else if (data.type === 'Directory') {
+        } else if (data.type === 'directory') {
           yield* indexUnixFsDir(reader, linkPath, block.cid, start, node)
         } else {
           throw new Error(`unsupported UnixFS type: ${data.type}`)
@@ -183,9 +191,9 @@ function carV2Header(size) {
   const header = concat([
     pragma,
     new Uint8Array(16).fill(0),
-    numberToU8(41),
+    numberToU8(51),
     numberToU8(size),
-    numberToU8(41 + size),
+    numberToU8(51 + size),
   ])
 
   return header
@@ -197,7 +205,7 @@ function carV2Header(size) {
 function numberToU8(num) {
   const arr = new ArrayBuffer(8)
   const view = new DataView(arr)
-  view.setBigInt64(0, BigInt(num))
+  view.setBigInt64(0, BigInt(num), true)
 
   return new Uint8Array(arr)
 }

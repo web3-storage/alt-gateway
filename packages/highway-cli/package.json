@@ -5,7 +5,7 @@
   "main": "src/index.js",
   "type": "module",
   "bin": {
-    "highway": "node src/bin.js"
+    "highway": "src/bin.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -13,6 +13,33 @@
   "author": "Alan Shaw",
   "license": "Apache-2.0 OR MIT",
   "dependencies": {
+    "@ipld/car": "^4.1.2",
+    "carnonical": "file:../carnonical",
+    "carv2-path-index": "file:../carv2-path-index",
+    "cli-table": "^0.3.11",
     "sade": "^1.8.1"
+  },
+  "eslintConfig": {
+    "extends": [
+      "../../node_modules/hd-scripts/eslint/index.js"
+    ],
+    "ignorePatterns": [
+      "pw-test.config.cjs"
+    ],
+    "parserOptions": {
+      "project": "./tsconfig.json"
+    },
+    "env": {
+      "mocha": true
+    }
+  },
+  "eslintIgnore": [
+    "node_modules",
+    "coverage",
+    "dist",
+    "docs"
+  ],
+  "devDependencies": {
+    "@types/cli-table": "^0.3.0"
   }
 }
