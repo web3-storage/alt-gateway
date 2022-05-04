@@ -44,7 +44,7 @@ export async function* process(car) {
 
   switch (block.cid.code) {
     case raw.code: {
-      yield indexEntry('', block.cid, start, end)
+      yield indexEntry('', block.cid, start, end - start)
       return
     }
     case dagPB.code: {
@@ -93,7 +93,7 @@ export async function* process(car) {
  */
 async function* indexUnixFsFile(reader, path, cid, start, rootNode) {
   const end = await seekUnixFsFileEnd(reader, rootNode)
-  yield indexEntry(path, cid, start, end)
+  yield indexEntry(path, cid, start, end - start)
 }
 
 /**
@@ -138,7 +138,7 @@ async function* indexUnixFsDir(reader, path, cid, start, rootNode) {
 
     switch (block.cid.code) {
       case raw.code: {
-        yield indexEntry(linkPath, block.cid, start, end)
+        yield indexEntry(linkPath, block.cid, start, end - start)
         break
       }
       case dagPB.code: {
@@ -162,7 +162,7 @@ async function* indexUnixFsDir(reader, path, cid, start, rootNode) {
     }
     start = reader.pos
   }
-  yield indexEntry(path, cid, dirStart, reader.pos)
+  yield indexEntry(path, cid, dirStart, reader.pos - dirStart)
 }
 
 /**

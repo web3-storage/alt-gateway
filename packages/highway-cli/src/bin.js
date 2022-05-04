@@ -60,5 +60,17 @@ prog
     console.log(table.toString())
     await file.close()
   })
+  .command('export <src> <path>')
+  .describe('Export a path from the source CAR.')
+  .option('-o, --output', 'Write output to a file.')
+  .example('export my-indexed.car /path/to/pug.png -o pug.car')
+  .action(async (src, opts) => {
+    const input = await CarReader.fromIterable(fs.createReadStream(src))
+    const canon = await Carnonical.transform(input)
+    await pipeline(
+      PathIndex.process(canon),
+      opts.output ? fs.createWriteStream(opts.output) : process.stdout
+    )
+  })
 
 prog.parse(process.argv)

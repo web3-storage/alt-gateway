@@ -24,8 +24,10 @@ function createCarHeader(roots) {
  */
 export async function* exportCar(file, path = '') {
   // read header
-  const headerData = new Uint8Array(51)
-  await file.read(headerData, 0, 51, 0)
+  const headerData = new Uint8Array(
+    51 /* CAR v2 pragma */ + 59 /* probably enough space for CAR v1 header */
+  )
+  await file.read(headerData, 0, 51 + 59, 0)
 
   const header = await readHeader(bytesReader(headerData))
   if (header.version !== 2) {
