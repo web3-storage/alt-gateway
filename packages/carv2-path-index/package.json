@@ -1,7 +1,7 @@
 {
-  "name": "api",
+  "name": "carv2-path-index",
   "version": "0.0.1",
-  "description": "Auth API",
+  "description": "A DAG path index for CARv2",
   "private": true,
   "type": "module",
   "main": "src/index.js",
@@ -14,8 +14,10 @@
   "dependencies": {
     "@ipld/car": "^4.1.2",
     "@ipld/dag-cbor": "^7.0.1",
+    "@ipld/dag-pb": "^2.1.16",
     "@ipld/unixfs": "^1.0.3-dev",
     "blockstore-core": "^1.0.5",
+    "ipfs-unixfs": "^6.0.7",
     "ipfs-unixfs-importer": "^9.0.7",
     "it-last": "^1.0.6",
     "it-reader": "^5.0.1",

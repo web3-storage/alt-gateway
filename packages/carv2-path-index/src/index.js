@@ -2,8 +2,15 @@ import varint from 'varint'
 import { CID } from 'multiformats/cid'
 import * as Digest from 'multiformats/hashes/digest'
 import { concat } from 'uint8arrays/concat'
-
 import { bytesReader } from '@ipld/car/decoder'
+import * as raw from 'multiformats/codecs/raw'
+import * as dagPB from '@ipld/dag-pb'
+import { UnixFS } from 'ipfs-unixfs'
+
+/**
+ * @typedef {import('@ipld/car/lib/coding').BytesReader} BytesReader
+ * @typedef {import('@ipld/dag-pb').PBNode} PBNode
+ */
 
 const CIDV0_BYTES = {
   SHA2_256: 0x12,
@@ -21,21 +28,147 @@ export async function* process(bytes) {
 
   await readHeader(reader)
 
-  while (reader.pos < bytes.length) {
-    const { block, start, end } = await readBlock(reader)
-    const path = new TextEncoder().encode('/')
+  const { block, start, end } = await readBlock(reader)
 
-    yield concat([
-      varint.encode(path.length),
-      path,
-      varint.encode(block.cid.byteLength),
-      block.cid.bytes,
-      varint.encode(start),
-      varint.encode(end),
-    ])
+  switch (block.cid.code) {
+    case raw.code: {
+      yield indexEntry('', block.cid, start, end)
+      return
+    }
+    case dagPB.code: {
+      const node = dagPB.decode(block.bytes)
+      const data = node.Data && UnixFS.unmarshal(node.Data)
+      if (!data) {
+        throw new Error('missing Data in dag-pb node')
+      }
+
+      if (data.type === 'File') {
+        yield* indexUnixFsFile(reader, '', block.cid, start, node)
+      } else if (data.type === 'Directory') {
+        yield* indexUnixFsDir(reader, '', block.cid, start, node)
+      } else {
+        throw new Error(`unsupported UnixFS type: ${data.type}`)
+      }
+      break
+    }
+    default:
+      throw new Error(`unsupported codec: ${block.cid.code}`)
   }
 
-  return true
+  // while (reader.pos < bytes.length) {
+  //   const { block, start, end } = await readBlock(reader)
+  //   const path = new TextEncoder().encode('/')
+
+  //   yield concat([
+  //     varint.encode(path.length),
+  //     path,
+  //     varint.encode(block.cid.byteLength),
+  //     block.cid.bytes,
+  //     varint.encode(start),
+  //     varint.encode(end),
+  //   ])
+  // }
+
+  // return true
+}
+
+/**
+ * @param {BytesReader} reader
+ * @param {string} path
+ * @param {CID} cid
+ * @param {number} start
+ * @param {PBNode} rootNode
+ */
+async function* indexUnixFsFile(reader, path, cid, start, rootNode) {
+  const end = await seekUnixFsFileEnd(reader, rootNode)
+  yield indexEntry(path, cid, start, end)
+}
+
+/**
+ * @param {BytesReader} reader
+ * @param {PBNode} rootNode
+ */
+async function seekUnixFsFileEnd(reader, rootNode) {
+  let endPos = reader.pos
+  // eslint-disable-next-line no-unused-vars
+  for (const _ of rootNode.Links) {
+    const { block, end } = await readBlock(reader)
+    endPos = end
+
+    switch (block.cid.code) {
+      case raw.code:
+        break // nothing to do
+      case dagPB.code: {
+        const node = dagPB.decode(block.bytes)
+        endPos = await seekUnixFsFileEnd(reader, node)
+        break
+      }
+      default:
+        throw new Error(`unexpected codec: ${block.cid.code}`)
+    }
+  }
+  return endPos
+}
+
+/**
+ * @param {BytesReader} reader
+ * @param {string} path
+ * @param {CID} cid
+ * @param {number} start
+ * @param {PBNode} rootNode
+ * @returns {AsyncGenerator<Uint8Array>}
+ */
+async function* indexUnixFsDir(reader, path, cid, start, rootNode) {
+  const dirStart = start
+  for (const link of rootNode.Links) {
+    const { block, end } = await readBlock(reader)
+    const linkPath = `${path}/${link.Name}`
+
+    switch (block.cid.code) {
+      case raw.code: {
+        yield indexEntry(linkPath, block.cid, start, end)
+        break
+      }
+      case dagPB.code: {
+        const node = dagPB.decode(block.bytes)
+        const data = node.Data && UnixFS.unmarshal(node.Data)
+        if (!data) {
+          throw new Error('missing Data in dag-pb node')
+        }
+
+        if (data.type === 'File') {
+          yield* indexUnixFsFile(reader, linkPath, block.cid, start, node)
+        } else if (data.type === 'Directory') {
+          yield* indexUnixFsDir(reader, linkPath, block.cid, start, node)
+        } else {
+          throw new Error(`unsupported UnixFS type: ${data.type}`)
+        }
+        break
+      }
+      default:
+        throw new Error(`unsupported codec: ${block.cid.code}`)
+    }
+    start = reader.pos
+  }
+  yield indexEntry(path, cid, dirStart, reader.pos)
+}
+
+/**
+ * @param {string} path
+ * @param {CID} cid
+ * @param {number} offset
+ * @param {number} length
+ */
+function indexEntry(path, cid, offset, length) {
+  const pathBuf = new TextEncoder().encode(path)
+  return concat([
+    varint.encode(pathBuf.length),
+    pathBuf,
+    varint.encode(cid.bytes.length),
+    cid.bytes,
+    varint.encode(offset),
+    varint.encode(length),
+  ])
 }
 
 /**

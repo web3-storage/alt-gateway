@@ -4,7 +4,8 @@ import { sha256 } from 'multiformats/hashes/sha2'
 import varint from 'varint'
 import { concat } from 'uint8arrays'
 import test from 'ava'
-import { read, PATH_INDEX_CODEC } from '../../carv2-path-index/src/read.js'
+import { read } from '../../carv2-path-index/src/read.js'
+import { PATH_INDEX_CODEC } from '../../carv2-path-index/src/constants.js'
 
 test('should read an index', async (t) => {
   const indexData = [
