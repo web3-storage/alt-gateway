@@ -133,6 +133,7 @@ async function seekUnixFsFileEnd(reader, rootNode) {
 async function* indexUnixFsDir(reader, path, cid, start, rootNode) {
   const dirStart = start
   for (const link of rootNode.Links) {
+    start = reader.pos
     const { block, end } = await readBlock(reader)
     const linkPath = `${path}/${link.Name}`
 
@@ -160,7 +161,6 @@ async function* indexUnixFsDir(reader, path, cid, start, rootNode) {
       default:
         throw new Error(`unsupported codec: ${block.cid.code}`)
     }
-    start = reader.pos
   }
   yield indexEntry(path, cid, dirStart, reader.pos - dirStart)
 }
@@ -271,8 +271,8 @@ export async function readBlockHead(reader) {
  * @returns {Promise<{block: import('@ipld/car/api').Block, start: number, end: number}>}
  */
 async function readBlock(reader) {
-  const { cid, blockLength } = await readBlockHead(reader)
   const start = reader.pos
+  const { cid, blockLength } = await readBlockHead(reader)
   const bytes = await reader.exactly(blockLength)
   reader.seek(blockLength)
   const end = reader.pos

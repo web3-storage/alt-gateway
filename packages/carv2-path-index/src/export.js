@@ -37,7 +37,7 @@ export async function* exportCar(file, path = '') {
   if (path === '') {
     yield* file.createReadStream({
       start: header.dataOffset,
-      end: header.dataOffset + header.dataSize,
+      end: header.dataOffset + header.dataSize - 1,
     })
     return
   }
@@ -56,7 +56,7 @@ export async function* exportCar(file, path = '') {
   yield createCarHeader([entry.cid])
   // read data
   yield* file.createReadStream({
-    start: entry.offset,
-    end: entry.offset + entry.length,
+    start: header.dataOffset + entry.offset,
+    end: header.dataOffset + entry.offset + entry.length - 1,
   })
 }

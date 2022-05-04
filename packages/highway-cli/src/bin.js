@@ -5,6 +5,7 @@ import fs from 'fs'
 import * as Carnonical from 'carnonical'
 import * as PathIndex from 'carv2-path-index'
 import { inspectCar } from 'carv2-path-index/inspect'
+import { exportCar } from 'carv2-path-index/export'
 import { CarReader } from '@ipld/car'
 import { pipeline } from 'stream/promises'
 import Table from 'cli-table'
@@ -54,7 +55,7 @@ prog
 
     const file = await fs.promises.open(src, fs.constants.O_RDONLY)
     for await (const { path, cid, offset, length } of inspectCar(file)) {
-      table.push([path, cid.toString(), offset, length])
+      table.push([path || '/', cid.toString(), offset, length])
     }
     // eslint-disable-next-line no-console
     console.log(table.toString())
@@ -64,11 +65,10 @@ prog
   .describe('Export a path from the source CAR.')
   .option('-o, --output', 'Write output to a file.')
   .example('export my-indexed.car /path/to/pug.png -o pug.car')
-  .action(async (src, opts) => {
-    const input = await CarReader.fromIterable(fs.createReadStream(src))
-    const canon = await Carnonical.transform(input)
+  .action(async (src, path, opts) => {
+    const file = await fs.promises.open(src, fs.constants.O_RDONLY)
     await pipeline(
-      PathIndex.process(canon),
+      exportCar(file, path),
       opts.output ? fs.createWriteStream(opts.output) : process.stdout
     )
   })
