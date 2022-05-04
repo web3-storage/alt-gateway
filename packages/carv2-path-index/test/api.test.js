@@ -6,13 +6,32 @@ import { sha256 } from 'multiformats/hashes/sha2'
 import * as raw from 'multiformats/codecs/raw'
 import { process } from '../src/index.js'
 
-test('should work', async (t) => {
+test('should index one raw block', async (t) => {
   const block = await toBlock(new TextEncoder().encode('hello'), raw)
 
   const { writer, out } = CarWriter.create([block.cid])
   const consumed = consume(out)
 
   await writer.put(block)
+
+  await writer.close()
+  const parts = await consumed
+
+  const r = process(concat(parts))
+  // eslint-disable-next-line no-console
+  console.log(await consume(r))
+
+  t.truthy(true)
+})
+
+test('should index two raw block', async (t) => {
+  const block1 = await toBlock(new TextEncoder().encode('hello'), raw)
+  // const block2 = await toBlock(new TextEncoder().encode('hello'), raw)
+
+  const { writer, out } = CarWriter.create([block1.cid])
+  const consumed = consume(out)
+
+  await writer.put(block1)
 
   await writer.close()
   const parts = await consumed

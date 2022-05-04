@@ -2,7 +2,6 @@
   "name": "carv2-path-index",
   "version": "0.0.1",
   "description": "A DAG path index for CARv2",
-  "private": true,
   "type": "module",
   "main": "src/index.js",
   "scripts": {
