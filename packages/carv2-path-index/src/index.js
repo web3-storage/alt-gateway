@@ -2,6 +2,7 @@ import varint from 'varint'
 import { CID } from 'multiformats/cid'
 import * as Digest from 'multiformats/hashes/digest'
 import { concat } from 'uint8arrays/concat'
+import { fromString } from 'uint8arrays/from-string'
 
 import { bytesReader } from '@ipld/car/decoder'
 
@@ -19,6 +20,9 @@ const CIDV0_BYTES = {
 export async function* process(bytes) {
   const reader = bytesReader(bytes)
 
+  yield carV2Header(bytes.length)
+  // return full car v1
+  yield bytes
   await readHeader(reader)
 
   while (reader.pos < bytes.length) {
@@ -36,6 +40,33 @@ export async function* process(bytes) {
   }
 
   return true
+}
+
+/**
+ * @param {number} size
+ */
+function carV2Header(size) {
+  const pragma = fromString('0x0aa16776657273696f6e02', 'hex')
+  const header = concat([
+    pragma,
+    new Uint8Array(16).fill(0),
+    numberToU8(41),
+    numberToU8(size),
+    numberToU8(41 + size),
+  ])
+
+  return header
+}
+
+/**
+ * @param {number} num
+ */
+function numberToU8(num) {
+  const arr = new ArrayBuffer(8)
+  const view = new DataView(arr)
+  view.setBigInt64(0, BigInt(num))
+
+  return new Uint8Array(arr)
 }
 
 /**
@@ -104,7 +135,12 @@ async function readBlock(reader) {
   const bytes = await reader.exactly(blockLength)
   reader.seek(blockLength)
   const end = reader.pos
-  return { block: { bytes, cid }, start, end }
+  return {
+    block: { bytes, cid },
+    start,
+    end,
+    // chunk: await reader.exactly(end - start),
+  }
   /* c8 ignore next 2 */
   // Node.js 12 c8 bug
 }
